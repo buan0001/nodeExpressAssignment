@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BUANs express crud</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="shortcut icon" href=" " type="image/x-icon" />
+  </head>
+  <body>
+    <header id="test-grid">
+      <h2>Music artists!</h2>
+      <button id="create-btn">Add new artist</button>
+    </header>
+    <div id="artists-grid"></div>
+    <dialog id="submit-dialog">
+      <form id="submit-form">
+        <label for="name">Name of artist</label>
+        <input type="text" name="name" />
+        <label for="birthdate">Birthdate</label>
+        <input type="text" name="birthdate" />
+        <label for="activeSince">Active since</label>
+        <input type="text" name="activeSince" />
+        <label for="genres">Genres</label>
+        <input type="text" name="genres" />
+        <label for="labels">Name of labels</label>
+        <input type="text" name="labels" />
+        <label for="website">Website</label>
+        <input type="text" name="website" />
+        <label for="image" aria-placeholder="test 123">Link to an image</label>
+        <input type="text" name="image" />
+        <label for="shortDescription">Short description</label>
+        <textarea id="descriptionInput" name="shortDescription" rows="4" cols="10"> </textarea>
+        <input type="submit" value="Submit here!" />
+      </form>
+    </dialog>
+  </body>
+  <script src="script.js"></script>
+</html>

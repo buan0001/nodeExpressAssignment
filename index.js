@@ -8,8 +8,12 @@ app.use(cors());
 const port = 3000;
 
 async function readArtistsFile() {
-  try {const artists = await fs.readFile("users/artists.json"); return JSON.parse(artists);}
-  catch (err){return err}
+  try {
+    const artists = await fs.readFile("users/artists.json");
+    return JSON.parse(artists);
+  } catch (err) {
+    return err;
+  }
 }
 
 app.get("/", (req, res) => {
@@ -18,8 +22,7 @@ app.get("/", (req, res) => {
 
 app.get("/artists", async (req, res) => {
   const artists = await readArtistsFile();
-  if (artists instanceof Error){return res.json(artists)}
-  else {res.json(artists)}
+  res.json(artists);
 });
 
 app.get("/artists/:artistId", async (req, res) => {

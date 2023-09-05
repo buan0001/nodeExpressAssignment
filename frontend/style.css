@@ -1,0 +1,130 @@
+body {
+  background-color: teal;
+  margin: 0;
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif;
+}
+
+header {
+  text-align: center;
+  font-size: 2em;
+}
+
+#artists-grid {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  gap: 10px;
+  background-color: beige;
+  padding: 10px;
+}
+
+#test-grid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+#submit-form {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 10px;
+  background-color: beige;
+  padding: 10px;
+  justify-content: center;
+  align-items: center;
+}
+
+input[type="submit"] {
+  background-color: rgb(15, 177, 123);
+  padding: 0.5em;
+  border-radius: 5px;
+  box-shadow: rgba(255, 255, 255, 0.4) 0 2px inset;
+  color: #4e4107;
+  font-size: 1em;
+}
+
+/* #descriptionInput {
+  margin-top: 10px;
+  height: 5em;
+  width: 200px;
+  word-wrap: break-all;
+  white-space: normal;
+} */
+
+#artists-grid > article {
+  padding: 20px 0;
+  font-size: 1.5em;
+  background-color: bisque;
+}
+
+img {
+  max-width: 300px;
+}
+
+button {
+  background-color: rgb(15, 177, 123);
+  padding: 0.5em;
+  border-radius: 5px;
+  box-shadow: rgba(255, 255, 255, 0.4) 0 2px inset;
+  color: #4e4107;
+  font-size: 0.7em;
+}
+
+button:hover {
+  cursor: pointer;
+  opacity: 0.9;
+}
+
+button.red {
+  background-color: red;
+}
+
+dialog {
+  background-color: #5c7fca;
+  padding: 2em;
+  border-radius: 4px;
+}
+
+/* <!-- HTML !-->
+<button class="button-7" role="button">Button 7</button>
+
+/* CSS */
+/* .button-7 {
+  background-color: #0095ff;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  box-shadow: rgba(255, 255, 255, .4) 0 1px 0 0 inset;
+  box-sizing: border-box;
+  color: #fff;
+  cursor: pointer;
+  display: inline-block;
+  font-family: -apple-system,system-ui,"Segoe UI","Liberation Sans",sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.15385;
+  margin: 0;
+  outline: none;
+  padding: 8px .8em;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  vertical-align: baseline;
+  white-space: nowrap;
+}
+
+.button-7:hover,
+.button-7:focus {
+  background-color: #07c;
+}
+
+.button-7:focus {
+  box-shadow: 0 0 0 4px rgba(0, 149, 255, .15);
+}
+
+.button-7:active {
+  background-color: #0064bd;
+  box-shadow: none;
+} */
