@@ -93,11 +93,47 @@ function splitAndProperCase(genres) {
 
 function updateArtistClicked(artist) {
   console.log("update artist clicked", artist);
+  const form = document.querySelector("#submit-form");
+  form.name.value = artist.name;
+  form.birthdate.value = artist.birthdate;
+  form.activeSince.value = artist.activeSince;
+  form.genres.value = artist.genres;
+  form.labels.value = artist.labels;
+  form.website.value = artist.website;
+  form.image.value = artist.image;
+  form.shortDescription.value = artist.shortDescription;
   prepareDialog();
-  document.querySelector("#submit-form").addEventListener("submit", updateArtist);
+  document.querySelector("#submit-form").addEventListener("submit", (event) => {
+    event.preventDefault();
+    updateArtist(artist.id);
+  });
 }
 
-function updateArtist(params) {}
+async function updateArtist(id) {
+  const form = document.querySelector("#submit-form");
+  const fixedGenres = splitAndProperCase(form.genres.value);
+  const fixedLabels = splitAndProperCase(form.labels.value);
+  const updatedArtist = {
+    name: form.name.value,
+    birthdate: form.birthdate.value,
+    activeSince: form.activeSince.value,
+    genres: fixedGenres,
+    labels: fixedLabels,
+    website: form.website.value,
+    image: form.image.value,
+    shortDescription: form.shortDescription.value,
+  };
+  const promise = await fetch(`${host}/artists/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(updatedArtist),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  if (promise.ok) {
+    console.log("successfully created a new artist!");
+  }
+}
 
 function prepareDialog(params) {
   const form = document.querySelector("#submit-form");
