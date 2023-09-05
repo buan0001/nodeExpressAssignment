@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BUANs express crud</title>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="./style.css" />
     <link rel="shortcut icon" href=" " type="image/x-icon" />
   </head>
   <body>
@@ -16,24 +16,24 @@
     <dialog id="submit-dialog">
       <form id="submit-form">
         <label for="name">Name of artist</label>
-        <input type="text" name="name" />
+        <input type="text" name="name" placeholder="Full name" />
         <label for="birthdate">Birthdate</label>
-        <input type="text" name="birthdate" />
+        <input type="text" name="birthdate" placeholder="yyyy-mm-dd" />
         <label for="activeSince">Active since</label>
-        <input type="text" name="activeSince" />
+        <input type="text" name="activeSince" placeholder="yyyy-mm-dd" />
         <label for="genres">Genres</label>
         <input type="text" name="genres" />
         <label for="labels">Name of labels</label>
         <input type="text" name="labels" />
         <label for="website">Website</label>
         <input type="text" name="website" />
-        <label for="image" aria-placeholder="test 123">Link to an image</label>
+        <label for="image">Link to an image</label>
         <input type="text" name="image" />
         <label for="shortDescription">Short description</label>
         <textarea id="descriptionInput" name="shortDescription" rows="4" cols="10"> </textarea>
-        <input type="submit" value="Submit here!" />
+        <input id="submit-btn" type="submit" value="Submit here!" />
       </form>
     </dialog>
   </body>
-  <script src="script.js"></script>
+  <script src="./script.js"></script>
 </html>

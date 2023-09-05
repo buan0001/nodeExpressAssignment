@@ -76,7 +76,7 @@ button:hover {
 }
 
 button.red {
-  background-color: red;
+  background-color: rgb(214, 93, 93);
 }
 
 dialog {
