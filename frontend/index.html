@@ -14,23 +14,24 @@
     </header>
     <div id="artists-grid"></div>
     <dialog id="submit-dialog">
-      <form id="submit-form">
+      <form id="submit-form" method="dialog">
         <label for="name">Name of artist</label>
         <input type="text" name="name" placeholder="Full name" />
         <label for="birthdate">Birthdate</label>
-        <input type="text" name="birthdate" placeholder="yyyy-mm-dd" />
+        <input type="date" name="birthdate" />
         <label for="activeSince">Active since</label>
-        <input type="text" name="activeSince" placeholder="yyyy-mm-dd" />
+        <input type="date" name="activeSince" />
         <label for="genres">Genres</label>
         <input type="text" name="genres" />
         <label for="labels">Name of labels</label>
         <input type="text" name="labels" />
         <label for="website">Website</label>
-        <input type="text" name="website" />
+        <input type="url" name="website" />
         <label for="image">Link to an image</label>
-        <input type="text" name="image" />
+        <input type="url" name="image" />
         <label for="shortDescription">Short description</label>
         <textarea id="descriptionInput" name="shortDescription" rows="4" cols="10"> </textarea>
+        <input id="exit-btn" type="button" value="Close window" />
         <input id="submit-btn" type="submit" value="Submit here!" />
       </form>
     </dialog>

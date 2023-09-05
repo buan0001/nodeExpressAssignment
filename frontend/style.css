@@ -34,7 +34,8 @@ header {
   align-items: center;
 }
 
-input[type="submit"] {
+input[type="submit"],
+input[type="button"] {
   background-color: rgb(15, 177, 123);
   padding: 0.5em;
   border-radius: 5px;
@@ -42,14 +43,6 @@ input[type="submit"] {
   color: #4e4107;
   font-size: 1em;
 }
-
-/* #descriptionInput {
-  margin-top: 10px;
-  height: 5em;
-  width: 200px;
-  word-wrap: break-all;
-  white-space: normal;
-} */
 
 #artists-grid > article {
   padding: 20px 0;
@@ -70,9 +63,11 @@ button {
   font-size: 0.7em;
 }
 
-button:hover {
+button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover {
   cursor: pointer;
-  opacity: 0.9;
+  opacity: 0.8;
 }
 
 button.red {

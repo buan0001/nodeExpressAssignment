@@ -68,6 +68,7 @@ app.post("/artists", async (req, res) => {
     return res.json(artists);
   }
   const newArtist = req.body;
+  console.log("new artist!:", newArtist);
   newArtist.id = new Date().getTime();
   let uniqueUser = true;
   for (const artist of artists) {
@@ -79,7 +80,7 @@ app.post("/artists", async (req, res) => {
   if (uniqueUser) {
     artists.push(newArtist);
     const promise = await writeArtistsFile(artists);
-    res.json(promise);
+    res.end();
   } else {
     res.json("Artist already exists!");
   }
@@ -94,8 +95,12 @@ app.delete("/artists/:artistID", async (req, res) => {
   if (filteredList.length == artists.length) {
     res.json("Couldn't find that ID");
   } else {
-    const promise = await writeArtistsFile(filteredList);
-    res.json(promise);
+    try {
+      await writeArtistsFile(filteredList);
+      res.send(`Succesfully deleted artist with ID ${req.params.artistID}`);
+    } catch (err) {
+      res.json(err);
+    }
   }
 });
 
