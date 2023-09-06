@@ -25,13 +25,9 @@ async function writeArtistsFile(fileToWrite) {
   }
 }
 
-app.get("/", (req, res) => {
-  res.json("YEP GET");
-});
-
 app.get("/artists", async (req, res) => {
   const artists = await readArtistsFile();
-  res.json(artists);
+  res.status(200).json(artists);
 });
 
 app.get("/artists/:artistId", async (req, res) => {
@@ -43,7 +39,7 @@ app.get("/artists/:artistId", async (req, res) => {
   if (!correctArtist) {
     return res.status(404).json("User not found");
   }
-  res.json(correctArtist);
+  res.status(200).json(correctArtist);
 });
 
 app.put("/artists/:artistId", async (req, res) => {
@@ -52,11 +48,12 @@ app.put("/artists/:artistId", async (req, res) => {
     return res.status(500).json(artists);
   }
   const idToLookFor = Number(req.params.artistId);
-  const body = req.body;
   let foundArtist = artists.find((artist) => idToLookFor == artist.id);
   if (foundArtist == undefined) {
     return res.status(404).json("Couldn't find an artist with that ID!");
   }
+  const listOfArtistsWithoutTheFoundOne = artists.filter((artist) => artist.name != foundArtist.name);
+  const body = req.body;
   foundArtist.name = body.name;
   foundArtist.birthdate = body.birthdate;
   foundArtist.activeSince = body.activeSince;
@@ -67,8 +64,23 @@ app.put("/artists/:artistId", async (req, res) => {
   foundArtist.shortDescription = body.shortDescription;
   foundArtist.id = idToLookFor;
 
-  const promise = await writeArtistsFile(artists);
-  res.json(promise);
+  let stillUniqueUser = true;
+  for (const artist of listOfArtistsWithoutTheFoundOne) {
+    if (artist.name.toLowerCase() == foundArtist.name.toLowerCase()) {
+      stillUniqueUser = false;
+      break;
+    }
+  }
+  if (stillUniqueUser) {
+    try {
+      await writeArtistsFile(artists);
+      res.status(200).json(`Succesfully updated artist with ID ${req.params.artistID}`);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  } else {
+    res.status(400).json("Cannot update the user to have the given name; it's already taken");
+  }
 });
 
 app.post("/artists", async (req, res) => {
@@ -88,10 +100,14 @@ app.post("/artists", async (req, res) => {
   }
   if (uniqueUser) {
     artists.push(newArtist);
-    const promise = await writeArtistsFile(artists);
-    res.json(promise);
+    try {
+      await writeArtistsFile(artists);
+      res.status(200).json(`Succesfully created artist with ID ${newArtist.id}`);
+    } catch (err) {
+      res.json(err);
+    }
   } else {
-    res.json("Artist already exists!");
+    res.status(400).json("Artist already exists!");
   }
 });
 
@@ -102,11 +118,11 @@ app.delete("/artists/:artistID", async (req, res) => {
   }
   const filteredList = artists.filter((artist) => artist.id != req.params.artistID);
   if (filteredList.length == artists.length) {
-    res.json("Couldn't find that ID");
+    res.status(400).json("Couldn't find an artist with that ID");
   } else {
     try {
       await writeArtistsFile(filteredList);
-      res.send(`Succesfully deleted artist with ID ${req.params.artistID}`);
+      res.status(200).json(`Succesfully deleted artist with ID ${req.params.artistID}`);
     } catch (err) {
       res.json(err);
     }

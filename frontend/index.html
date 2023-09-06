@@ -8,26 +8,29 @@
     <link rel="shortcut icon" href=" " type="image/x-icon" />
   </head>
   <body>
-    <header id="test-grid">
+    <header id="header-grid">
       <h2>Music artists!</h2>
       <button id="create-btn">Add new artist</button>
-      <label for="filter">Filter by genre:</label>
-      <select name="filter" id="filter-select" autocomplete="off">
+      <label for="filter">Filter by:</label>
+      <select name="filter" id="filter-select">
         <option value="">No Filter</option>
+        <option value="favorite">Favorite</option>
         <option value="rock">Rock</option>
         <option value="punk">Punk</option>
         <option value="country">Country</option>
-        <option value="dnb">Drum and bass</option>
+        <option value="drum and bass">Drum and bass</option>
         <option value="pop">Pop</option>
         <option value="other">Other</option>
       </select>
       <label for="sort">Sort by:</label>
-      <select name="sort" id="sort-select" autocomplete="off">
+      <select name="sort" id="sort-select">
         <option value="">No sort</option>
-        <option value="name1">Name A-Å</option>
-        <option value="name2">Name Å-A</option>
-        <option value="birthdate1">Youngest to oldest</option>
-        <option value="birthdate2">Oldest to youngest</option>
+        <option value="string-name-1">Name A-Å</option>
+        <option value="string-name-2">Name Å-A</option>
+        <option value="bool-favorite-1">Favorites first</option>
+        <option value="bool-favorite-2">Favorites last</option>
+        <option value="time-birthdate-1">Youngest to oldest</option>
+        <option value="time-birthdate-2">Oldest to youngest</option>
       </select>
     </header>
     <div id="artists-grid"></div>
@@ -46,7 +49,7 @@
         <label for="website">Website</label>
         <input type="url" name="website" />
         <label for="image">Link to an image</label>
-        <input type="url" name="image" />
+        <input type="url" name="image" autocomplete="off" />
         <label for="shortDescription">Short description</label>
         <textarea id="descriptionInput" name="shortDescription" rows="4" cols="10"> </textarea>
         <input id="exit-btn" type="button" value="Close window" />

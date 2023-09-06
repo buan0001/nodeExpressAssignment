@@ -1,16 +1,32 @@
 "use strict";
 
+import { getArtists, updateArtist, deleteArtist, createNewArtist } from "./fetch.js";
+import { prepareDialog, splitAndProperCase } from "./helpers.js";
+
 window.addEventListener("load", start);
 
 const host = "http://localhost:3000";
 let artists;
 
 async function start(params) {
-  console.log("så er vi sgu tilbage asdasdasd");
   artists = await getArtists();
   console.log("artists:", artists);
-  showArtists(artists);
+  applyFavorites();
   addListeners();
+  applySortAndFilter();
+}
+
+function applyFavorites(params) {
+  const currentStash = localStorage.getItem("favorites");
+  if (currentStash) {
+    for (const artist of artists) {
+      if (currentStash.includes(artist.id)) {
+        artist.favorite = true;
+      } else {
+        artist.favorite = false;
+      }
+    }
+  }
 }
 
 function addListeners(params) {
@@ -32,49 +48,79 @@ function sortChanged(event) {
   applySortAndFilter(sortValue, this);
 }
 
-function applySortAndFilter(sortOrFilterValue, whoCalledThiSfunction) {
+function applySortAndFilter(sortOrFilterValue, whoCalledThisFunction) {
+  // Set an intial value to account for values selected before a refresh
+  let sortValue = document.querySelector("#sort-select").value;
+  let filterValue = document.querySelector("#filter-select").value;
+
   // Avoiding global variables and using the same function to handle calls from different functions!
-  let sortValue;
-  let filterValue;
-  if ((whoCalledThiSfunction.id = "sort-select")) {
-    sortValue = sortOrFilterValue;
-  } else if ((whoCalledThiSfunction.id = "filter-select")) {
-    filterValue = sortOrFilterValue;
+  if (whoCalledThisFunction) {
+    if (whoCalledThisFunction.id === "sort-select") {
+      sortValue = sortOrFilterValue;
+    } else if (whoCalledThisFunction.id === "filter-select") {
+      filterValue = sortOrFilterValue;
+    }
   }
+
   const sortedArray = applySort(sortValue);
-  const filteredArray = applyFilter(sortedArray, filterValue)
+  const filteredArray = applyFilter(sortedArray, filterValue);
+  showArtists(filteredArray);
 }
 
 function applySort(sortValue) {
   // Create a copy of the original array to keep it intact; sort overrides the orginal array.
   const arrayToSort = Array.from(artists);
-  console.log(arrayToSort);
-  console.log("sort value:", sortValue);
-  if (sortValue == "name1") {
-    arrayToSort.sort((artist1, artist2) => artist1.name.localeCompare(artist2.name));
-  } else if (sortValue == "name2") {
-    arrayToSort.sort((artist1, artist2) => artist1.name.localeCompare(artist2.name)).reverse();
-  } else if (sortValue == "birthdate1") {
-    arrayToSort.sort((artist1, artist2) => new Date(artist1.birthdate).getTime() - new Date(artist2.birthdate).getTime());
+  // Since our sortValue looks like this: "type-value-reverseOrNot"
+  // we need to extract the "value" to a variable so we can use it in the sort functions
+  let valueToCompare = sortValue.split("-")[1];
+  if (sortValue.startsWith("string")) {
+    arrayToSort.sort((artist1, artist2) => artist1[valueToCompare].localeCompare(artist2[valueToCompare]));
+  } else if (sortValue.startsWith("time")) {
+    arrayToSort.sort((artist1, artist2) => new Date(artist1[valueToCompare]).getTime() - new Date(artist2[valueToCompare]).getTime());
+  } else if (sortValue.startsWith("bool")) {
+    arrayToSort.sort((artist1, artist2) => {
+      if (artist2[valueToCompare] == "undefined") {
+        artist2[valueToCompare] = false;
+      }
+      if (artist1[valueToCompare] == "undefined") {
+        artist1[valueToCompare] = false;
+      }
+      return artist2[valueToCompare] - artist1[valueToCompare];
+    });
   }
-  else if (sortValue =="birthdate2") {arrayToSort.sort((artist1, artist2) => new Date(artist1.birthdate).getTime() - new Date(artist2.birthdate).getTime()).reverse();}
-  console.log("sorted array?", arrayToSort);
-
-  // Return the sorted array. If no sort-value was set, return an unchanged copy the original array
-  return arrayToSort
+  if (sortValue.endsWith("2")) {
+    arrayToSort.reverse();
+  }
+  // Return the sorted array. If no sort-value was set, return an unchanged copy of the original artist array
+  return arrayToSort;
 }
 
 function applyFilter(arrayToFilter, filterValue) {
-  
-}
-
-async function getArtists(params) {
-  const rawArtists = await fetch(`${host}/artists`);
-  return await rawArtists.json();
+  // If no filter value is set, ignore and return
+  if (filterValue != "") {
+    if (filterValue == "favorite") {
+      return arrayToFilter.filter((artist) => artist.favorite);
+    }
+    const possibleGenres = ["rock", "punk", "country", "drum and bass", "pop"];
+    return arrayToFilter.filter((artist) => {
+      for (const genre of artist.genres) {
+        if (genre.toLowerCase() == filterValue) {
+          return true;
+        } else if (filterValue == "other") {
+          if (!possibleGenres.includes(genre.toLowerCase())) {
+            return true;
+          }
+        }
+      }
+    });
+  } else {
+    return arrayToFilter;
+  }
 }
 
 function showArtists(listOfArtists) {
   const grid = document.querySelector("#artists-grid");
+  grid.innerHTML = "";
   for (const artist of listOfArtists) {
     grid.insertAdjacentHTML(
       `beforeend`,
@@ -90,21 +136,47 @@ function showArtists(listOfArtists) {
     <div>About the artist: <b> ${artist.shortDescription}</b></div>
     <button class="update-btn">Update the artist</button>
     <button class="red delete-btn">DELETE THIS artist</button>
+    <button class="yellow favorite-btn">Add to favorites!</button>
     </article>
     `
     );
+    if (artist.favorite) {
+      const button = document.querySelector("article:last-child .favorite-btn");
+      button.innerHTML = "Remove from favorites";
+      button.classList.add("favorite");
+    }
     document.querySelector("article:last-child .update-btn").addEventListener("click", () => updateArtistClicked(artist));
     document.querySelector("article:last-child .delete-btn").addEventListener("click", () => deleteArtistClicked(artist));
+    document.querySelector("article:last-child .favorite-btn").addEventListener("click", () => changeFavoriteStatus(artist));
   }
+}
+
+function changeFavoriteStatus(artist) {
+  let currentStash = localStorage.getItem("favorites");
+  artist.favorite = !artist.favorite;
+
+  if (artist.favorite) {
+    if (currentStash) {
+      localStorage.setItem("favorites", currentStash + ", " + artist.id);
+    } else {
+      localStorage.setItem("favorites", artist.id);
+    }
+  } else {
+    const thingToSend = currentStash.split(",").filter((entry) => entry != artist.id);
+    localStorage.setItem("favorites", thingToSend);
+  }
+  console.log("changed stash:", localStorage.getItem("favorites"));
+  applySortAndFilter();
 }
 
 function createNewArtistClicked(event) {
   prepareDialog();
   console.log("create new artist clicked");
-  document.querySelector("#submit-form").addEventListener("submit", createNewArtist);
+  document.querySelector("#submit-form").addEventListener("submit", extractNewArtistFromForm);
 }
 
-async function createNewArtist(event) {
+async function extractNewArtistFromForm(event) {
+  console.log("CREATING");
   const form = event.target;
   const fixedGenres = splitAndProperCase(form.genres.value);
   const fixedLabels = splitAndProperCase(form.labels.value);
@@ -118,29 +190,11 @@ async function createNewArtist(event) {
     image: form.image.value,
     shortDescription: form.shortDescription.value,
   };
-
-  console.log(JSON.stringify(newArtist));
-
-  const promise = await fetch(`${host}/artists`, {
-    method: "POST",
-    body: JSON.stringify(newArtist),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  const promise = await createNewArtist(newArtist);
+  console.log(promise);
   if (promise.ok) {
-    console.log("successfully created a new artist!");
+    applySortAndFilter();
   }
-}
-
-function splitAndProperCase(genres) {
-  const seperatedGenres = genres.split(",");
-  const semiProperGenres = [];
-  for (const genre of seperatedGenres) {
-    const trimmed = genre.trim();
-    semiProperGenres.push(trimmed.charAt(0).toUpperCase() + trimmed.toLowerCase().slice(1));
-  }
-  return semiProperGenres;
 }
 
 function updateArtistClicked(artist) {
@@ -155,13 +209,12 @@ function updateArtistClicked(artist) {
   form.image.value = artist.image;
   form.shortDescription.value = artist.shortDescription;
   prepareDialog();
-  document.querySelector("#submit-form").addEventListener("submit", (event) => {
-    event.preventDefault();
-    updateArtist(artist.id);
-  });
+  document.querySelector("#submit-form").addEventListener("submit", () => extractUpdatedArtistFromForm(artist.id));
 }
 
-async function updateArtist(id) {
+async function extractUpdatedArtistFromForm(artistID) {
+  console.log("UPDATING");
+  // Extract values from form and create a new object
   const form = document.querySelector("#submit-form");
   const fixedGenres = splitAndProperCase(form.genres.value);
   const fixedLabels = splitAndProperCase(form.labels.value);
@@ -175,47 +228,24 @@ async function updateArtist(id) {
     image: form.image.value,
     shortDescription: form.shortDescription.value,
   };
-  const promise = await fetch(`${host}/artists/${id}`, {
-    method: "PUT",
-    body: JSON.stringify(updatedArtist),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+
+  const promise = await updateArtist(updatedArtist, artistID);
   if (promise.ok) {
-    console.log("successfully created a new artist!");
-  }
-}
-
-function prepareDialog(params) {
-  const form = document.querySelector("#submit-form");
-  const node = document.querySelector("#submit-btn");
-  const clone = node.cloneNode(true);
-  node.remove();
-  form.appendChild(clone);
-  // form.reset();
-  document.querySelector("#submit-dialog").showModal();
-}
-
-function deleteArtistClicked(artist) {
-  if (window.confirm("Do you REALLY wish to delete this artist?")) {
-    deleteArtist(artist);
-  }
-}
-
-async function deleteArtist(artistToDelete) {
-  console.log("idk????");
-  const promise = await fetch(`${host}/artists/${artistToDelete.id}`, {
-    method: "DELETE",
-  });
-  console.log("return promise", promise);
-  if (promise.ok) {
-    console.log("successfully deleted!");
+    applySortAndFilter();
   } else {
-    console.log("something went wrong when deleting");
+    console.error(promise);
   }
 }
 
-function test(params) {
-  console.log("testing!");
+async function deleteArtistClicked(artist) {
+  console.log("we deleting? 11111");
+  if (window.confirm("Do you REALLY wish to delete this artist?")) {
+    console.log("we deleting? 22222");
+    const promise = await deleteArtist(artist);
+    if (promise.ok) {
+      applySortAndFilter();
+    }
+  } else {
+    console.log("we in here now");
+  }
 }
