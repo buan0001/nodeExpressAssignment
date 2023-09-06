@@ -16,6 +16,15 @@ async function readArtistsFile() {
   }
 }
 
+async function writeArtistsFile(fileToWrite) {
+  try {
+    await fs.writeFile("users/artists.json", JSON.stringify(fileToWrite));
+    return "Succesful request";
+  } catch (err) {
+    return err;
+  }
+}
+
 app.get("/", (req, res) => {
   res.json("YEP GET");
 });
@@ -28,19 +37,19 @@ app.get("/artists", async (req, res) => {
 app.get("/artists/:artistId", async (req, res) => {
   const artists = await readArtistsFile();
   if (artists instanceof Error) {
-    return res.json(artists);
+    return res.status(500).json(artists);
   }
-  const correctartist = artists.find((task) => Number(req.params.artistId) == Number(task.id));
-  if (!correctartist) {
+  const correctArtist = artists.find((task) => Number(req.params.artistId) == Number(task.id));
+  if (!correctArtist) {
     return res.status(404).json("User not found");
   }
-  res.json(correctartist);
+  res.json(correctArtist);
 });
 
 app.put("/artists/:artistId", async (req, res) => {
   const artists = await readArtistsFile();
   if (artists instanceof Error) {
-    return res.json(artists);
+    return res.status(500).json(artists);
   }
   const idToLookFor = Number(req.params.artistId);
   const body = req.body;
@@ -65,7 +74,7 @@ app.put("/artists/:artistId", async (req, res) => {
 app.post("/artists", async (req, res) => {
   const artists = await readArtistsFile();
   if (artists instanceof Error) {
-    return res.json(artists);
+    return res.status(500).json(artists);
   }
   const newArtist = req.body;
   console.log("new artist!:", newArtist);
@@ -80,7 +89,7 @@ app.post("/artists", async (req, res) => {
   if (uniqueUser) {
     artists.push(newArtist);
     const promise = await writeArtistsFile(artists);
-    res.end();
+    res.json(promise);
   } else {
     res.json("Artist already exists!");
   }
@@ -89,7 +98,7 @@ app.post("/artists", async (req, res) => {
 app.delete("/artists/:artistID", async (req, res) => {
   const artists = await readArtistsFile();
   if (artists instanceof Error) {
-    return res.json(artists);
+    return res.status(500).json(artists);
   }
   const filteredList = artists.filter((artist) => artist.id != req.params.artistID);
   if (filteredList.length == artists.length) {
@@ -107,12 +116,3 @@ app.delete("/artists/:artistID", async (req, res) => {
 app.listen(port, () => {
   console.log(`Server started on http://localhost:${port}`);
 });
-
-async function writeArtistsFile(fileToWrite) {
-  try {
-    await fs.writeFile("users/artists.json", JSON.stringify(fileToWrite));
-    return "Succesful request";
-  } catch (err) {
-    return err;
-  }
-}

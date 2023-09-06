@@ -3,10 +3,12 @@
 window.addEventListener("load", start);
 
 const host = "http://localhost:3000";
+let artists;
 
 async function start(params) {
   console.log("så er vi sgu tilbage asdasdasd");
-  const artists = await getArtists();
+  artists = await getArtists();
+  console.log("artists:", artists);
   showArtists(artists);
   addListeners();
 }
@@ -14,6 +16,56 @@ async function start(params) {
 function addListeners(params) {
   document.querySelector("#create-btn").addEventListener("click", createNewArtistClicked);
   document.querySelector("#exit-btn").addEventListener("click", () => document.querySelector("#submit-dialog").close());
+  document.querySelector("#filter-select").addEventListener("change", filterChanged);
+  document.querySelector("#sort-select").addEventListener("change", sortChanged);
+}
+
+function filterChanged(event) {
+  const filterValue = event.target.value;
+  console.log(filterValue);
+  applySortAndFilter(filterValue, this);
+}
+
+function sortChanged(event) {
+  const sortValue = event.target.value;
+  console.log(sortValue);
+  applySortAndFilter(sortValue, this);
+}
+
+function applySortAndFilter(sortOrFilterValue, whoCalledThiSfunction) {
+  // Avoiding global variables and using the same function to handle calls from different functions!
+  let sortValue;
+  let filterValue;
+  if ((whoCalledThiSfunction.id = "sort-select")) {
+    sortValue = sortOrFilterValue;
+  } else if ((whoCalledThiSfunction.id = "filter-select")) {
+    filterValue = sortOrFilterValue;
+  }
+  const sortedArray = applySort(sortValue);
+  const filteredArray = applyFilter(sortedArray, filterValue)
+}
+
+function applySort(sortValue) {
+  // Create a copy of the original array to keep it intact; sort overrides the orginal array.
+  const arrayToSort = Array.from(artists);
+  console.log(arrayToSort);
+  console.log("sort value:", sortValue);
+  if (sortValue == "name1") {
+    arrayToSort.sort((artist1, artist2) => artist1.name.localeCompare(artist2.name));
+  } else if (sortValue == "name2") {
+    arrayToSort.sort((artist1, artist2) => artist1.name.localeCompare(artist2.name)).reverse();
+  } else if (sortValue == "birthdate1") {
+    arrayToSort.sort((artist1, artist2) => new Date(artist1.birthdate).getTime() - new Date(artist2.birthdate).getTime());
+  }
+  else if (sortValue =="birthdate2") {arrayToSort.sort((artist1, artist2) => new Date(artist1.birthdate).getTime() - new Date(artist2.birthdate).getTime()).reverse();}
+  console.log("sorted array?", arrayToSort);
+
+  // Return the sorted array. If no sort-value was set, return an unchanged copy the original array
+  return arrayToSort
+}
+
+function applyFilter(arrayToFilter, filterValue) {
+  
 }
 
 async function getArtists(params) {

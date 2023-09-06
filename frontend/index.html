@@ -11,6 +11,24 @@
     <header id="test-grid">
       <h2>Music artists!</h2>
       <button id="create-btn">Add new artist</button>
+      <label for="filter">Filter by genre:</label>
+      <select name="filter" id="filter-select" autocomplete="off">
+        <option value="">No Filter</option>
+        <option value="rock">Rock</option>
+        <option value="punk">Punk</option>
+        <option value="country">Country</option>
+        <option value="dnb">Drum and bass</option>
+        <option value="pop">Pop</option>
+        <option value="other">Other</option>
+      </select>
+      <label for="sort">Sort by:</label>
+      <select name="sort" id="sort-select" autocomplete="off">
+        <option value="">No sort</option>
+        <option value="name1">Name A-Å</option>
+        <option value="name2">Name Å-A</option>
+        <option value="birthdate1">Youngest to oldest</option>
+        <option value="birthdate2">Oldest to youngest</option>
+      </select>
     </header>
     <div id="artists-grid"></div>
     <dialog id="submit-dialog">
@@ -36,5 +54,5 @@
       </form>
     </dialog>
   </body>
-  <script src="./script.js"></script>
+  <script type="module" src="./script.js"></script>
 </html>
