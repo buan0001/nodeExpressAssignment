@@ -34,8 +34,8 @@
       </select>
     </header>
     <div id="artists-grid"></div>
-    <dialog id="submit-dialog">
-      <form id="submit-form" method="dialog">
+    <dialog id="submit-dialog-create">
+      <form id="submit-form-create" class="submit-form" method="dialog">
         <label for="name">Name of artist</label>
         <input type="text" name="name" placeholder="Full name" />
         <label for="birthdate">Birthdate</label>
@@ -52,8 +52,30 @@
         <input type="url" name="image" autocomplete="off" />
         <label for="shortDescription">Short description</label>
         <textarea id="descriptionInput" name="shortDescription" rows="4" cols="10"> </textarea>
-        <input id="exit-btn" type="button" value="Close window" />
-        <input id="submit-btn" type="submit" value="Submit here!" />
+        <input id="exit-btn-create" type="button" value="Close window" />
+        <input id="submit-btn-create" type="submit" value="Submit here!" />
+      </form>
+    </dialog>
+    <dialog id="submit-dialog-update">
+      <form id="submit-form-update" class="submit-form" method="dialog">
+        <label for="name">Name of artist</label>
+        <input type="text" name="name" placeholder="Full name" />
+        <label for="birthdate">Birthdate</label>
+        <input type="date" name="birthdate" />
+        <label for="activeSince">Active since</label>
+        <input type="date" name="activeSince" />
+        <label for="genres">Genres</label>
+        <input type="text" name="genres" />
+        <label for="labels">Name of labels</label>
+        <input type="text" name="labels" />
+        <label for="website">Website</label>
+        <input type="url" name="website" />
+        <label for="image">Link to an image</label>
+        <input type="url" name="image" autocomplete="off" />
+        <label for="shortDescription">Short description</label>
+        <textarea id="descriptionInput" name="shortDescription" rows="4" cols="10"> </textarea>
+        <input id="exit-btn-update" type="button" value="Close window" />
+        <input id="submit-btn-update" type="submit" value="Submit here!" />
       </form>
     </dialog>
   </body>

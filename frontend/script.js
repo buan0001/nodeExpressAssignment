@@ -1,11 +1,12 @@
 "use strict";
 
 import { getArtists, updateArtist, deleteArtist, createNewArtist } from "./fetch.js";
-import { prepareDialog, splitAndProperCase } from "./helpers.js";
+import { splitAndProperCase } from "./helpers.js";
 
 window.addEventListener("load", start);
 
 let artists;
+let selectedArtist;
 
 async function start(params) {
   artists = await getArtists();
@@ -29,10 +30,13 @@ function applyFavorites(params) {
 }
 
 function addListeners(params) {
-  document.querySelector("#create-btn").addEventListener("click", createNewArtistClicked);
-  document.querySelector("#exit-btn").addEventListener("click", () => document.querySelector("#submit-dialog").close());
+  document.querySelector("#submit-form-create").addEventListener("submit", extractNewArtistFromForm);
+  document.querySelector("#submit-form-update").addEventListener("submit", extractUpdatedArtistFromForm);
   document.querySelector("#filter-select").addEventListener("change", filterChanged);
   document.querySelector("#sort-select").addEventListener("change", sortChanged);
+  document.querySelector("#create-btn").addEventListener("click", () => document.querySelector("#submit-dialog-create").showModal());
+  document.querySelector("#exit-btn-create").addEventListener("click", () => document.querySelector("#submit-dialog-create").close());
+  document.querySelector("#exit-btn-update").addEventListener("click", () => document.querySelector("#submit-dialog-update").close());
 }
 
 function filterChanged(event) {
@@ -76,7 +80,7 @@ function applySort(sortValue) {
     if (sortValue.startsWith("string")) {
       arrayToSort.sort((artist1, artist2) => artist1[valueToCompare].localeCompare(artist2[valueToCompare]));
     } else if (sortValue.startsWith("time")) {
-      arrayToSort.sort((artist1, artist2) => new Date(artist1[valueToCompare]).getTime() - new Date(artist2[valueToCompare]).getTime());
+      arrayToSort.sort((artist1, artist2) => new Date(artist2[valueToCompare]).getTime() - new Date(artist1[valueToCompare]).getTime());
     } else if (sortValue.startsWith("bool")) {
       arrayToSort.sort((artist1, artist2) => {
         // In case of "favorite" being undefined, set it to false to avoid error
@@ -185,8 +189,9 @@ function changeFavoriteStatus(artist) {
 }
 
 function updateArtistClicked(artist) {
+  selectedArtist = artist;
   console.log("update artist clicked", artist);
-  const form = document.querySelector("#submit-form");
+  const form = document.querySelector("#submit-form-update");
   form.name.value = artist.name;
   form.birthdate.value = artist.birthdate;
   form.activeSince.value = artist.activeSince;
@@ -195,14 +200,14 @@ function updateArtistClicked(artist) {
   form.website.value = artist.website;
   form.image.value = artist.image;
   form.shortDescription.value = artist.shortDescription;
-  prepareDialog();
-  document.querySelector("#submit-form").addEventListener("submit", () => extractUpdatedArtistFromForm(artist.id));
+  document.querySelector("#submit-dialog-update").showModal();
 }
 
-async function extractUpdatedArtistFromForm(artistID) {
+async function extractUpdatedArtistFromForm() {
   console.log("UPDATING");
   // Extract values from form and create a new object
-  const form = document.querySelector("#submit-form");
+
+  const form = document.querySelector("#submit-form-update");
   const fixedGenres = splitAndProperCase(form.genres.value);
   const fixedLabels = splitAndProperCase(form.labels.value);
   const updatedArtist = {
@@ -216,7 +221,7 @@ async function extractUpdatedArtistFromForm(artistID) {
     shortDescription: form.shortDescription.value,
   };
 
-  const promise = await updateArtist(updatedArtist, artistID);
+  const promise = await updateArtist(updatedArtist, selectedArtist.id);
   if (promise.ok) {
     refetchAndShow();
   } else {
@@ -235,12 +240,6 @@ async function deleteArtistClicked(artist) {
       console.error(promise);
     }
   }
-}
-
-function createNewArtistClicked(event) {
-  prepareDialog();
-  console.log("create new artist clicked");
-  document.querySelector("#submit-form").addEventListener("submit", extractNewArtistFromForm);
 }
 
 async function extractNewArtistFromForm(event) {
@@ -268,5 +267,6 @@ async function extractNewArtistFromForm(event) {
 
 async function refetchAndShow() {
   artists = await getArtists();
+  applyFavorites();
   applySortFilterAndShow();
 }
