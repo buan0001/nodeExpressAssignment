@@ -13,7 +13,9 @@ header {
   display: grid;
   grid-template-columns: auto auto auto;
   gap: 15px;
-
+  align-items: center;
+  align-content: center;
+  justify-content: center;
   background-color: beige;
   padding: 10px;
 }
@@ -51,7 +53,7 @@ input[type="button"] {
   background-color: rgb(233, 207, 176);
   border-radius: 10px 20px;
 }
-#artists-grid > article.favorite{
+#artists-grid > article.favorite {
   background-color: rgb(133, 133, 228);
 }
 
@@ -101,8 +103,6 @@ button.favorite {
   background-color: rgb(128, 116, 116);
   color: #00030a;
 }
-
-
 
 dialog {
   background-color: #5c7fca;

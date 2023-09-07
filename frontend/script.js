@@ -5,7 +5,6 @@ import { prepareDialog, splitAndProperCase } from "./helpers.js";
 
 window.addEventListener("load", start);
 
-const host = "http://localhost:3000";
 let artists;
 
 async function start(params) {
@@ -13,7 +12,7 @@ async function start(params) {
   console.log("artists:", artists);
   applyFavorites();
   addListeners();
-  applySortAndFilter();
+  applySortFilterAndShow();
 }
 
 function applyFavorites(params) {
@@ -38,17 +37,16 @@ function addListeners(params) {
 
 function filterChanged(event) {
   const filterValue = event.target.value;
-  console.log(filterValue);
-  applySortAndFilter(filterValue, this);
+  applySortFilterAndShow(filterValue, this);
 }
 
 function sortChanged(event) {
   const sortValue = event.target.value;
-  console.log(sortValue);
-  applySortAndFilter(sortValue, this);
+  applySortFilterAndShow(sortValue, this);
 }
 
-function applySortAndFilter(sortOrFilterValue, whoCalledThisFunction) {
+function applySortFilterAndShow(sortOrFilterValue, whoCalledThisFunction) {
+  console.log("getting ready to show you artists");
   // Set an intial value to account for values selected before a refresh
   let sortValue = document.querySelector("#sort-select").value;
   let filterValue = document.querySelector("#filter-select").value;
@@ -70,26 +68,31 @@ function applySortAndFilter(sortOrFilterValue, whoCalledThisFunction) {
 function applySort(sortValue) {
   // Create a copy of the original array to keep it intact; sort overrides the orginal array.
   const arrayToSort = Array.from(artists);
-  // Since our sortValue looks like this: "type-value-reverseOrNot"
-  // we need to extract the "value" to a variable so we can use it in the sort functions
-  let valueToCompare = sortValue.split("-")[1];
-  if (sortValue.startsWith("string")) {
-    arrayToSort.sort((artist1, artist2) => artist1[valueToCompare].localeCompare(artist2[valueToCompare]));
-  } else if (sortValue.startsWith("time")) {
-    arrayToSort.sort((artist1, artist2) => new Date(artist1[valueToCompare]).getTime() - new Date(artist2[valueToCompare]).getTime());
-  } else if (sortValue.startsWith("bool")) {
-    arrayToSort.sort((artist1, artist2) => {
-      if (artist2[valueToCompare] == "undefined") {
-        artist2[valueToCompare] = false;
-      }
-      if (artist1[valueToCompare] == "undefined") {
-        artist1[valueToCompare] = false;
-      }
-      return artist2[valueToCompare] - artist1[valueToCompare];
-    });
-  }
-  if (sortValue.endsWith("2")) {
-    arrayToSort.reverse();
+  if (sortValue != "") {
+    // Since our sortValue looks like this: "type-value-reverseOrNot"
+    // we need to extract the "value" to a variable so we can use it in the sort functions
+    let valueToCompare = sortValue.split("-")[1];
+
+    if (sortValue.startsWith("string")) {
+      arrayToSort.sort((artist1, artist2) => artist1[valueToCompare].localeCompare(artist2[valueToCompare]));
+    } else if (sortValue.startsWith("time")) {
+      arrayToSort.sort((artist1, artist2) => new Date(artist1[valueToCompare]).getTime() - new Date(artist2[valueToCompare]).getTime());
+    } else if (sortValue.startsWith("bool")) {
+      arrayToSort.sort((artist1, artist2) => {
+        // In case of "favorite" being undefined, set it to false to avoid error
+        if (artist2[valueToCompare] == "undefined") {
+          artist2[valueToCompare] = false;
+        }
+        if (artist1[valueToCompare] == "undefined") {
+          artist1[valueToCompare] = false;
+        }
+        return artist2[valueToCompare] - artist1[valueToCompare];
+      });
+    }
+
+    if (sortValue.endsWith("2")) {
+      arrayToSort.reverse();
+    }
   }
   // Return the sorted array. If no sort-value was set, return an unchanged copy of the original artist array
   return arrayToSort;
@@ -99,10 +102,11 @@ function applyFilter(arrayToFilter, filterValue) {
   // If no filter value is set, ignore and return
   if (filterValue != "") {
     if (filterValue == "favorite") {
-      return arrayToFilter.filter(artist => artist.favorite);
+      return arrayToFilter.filter((artist) => artist.favorite);
     }
+    // Not ideal solution... but works with the limited amount of genres we're working with
     const possibleGenres = ["rock", "punk", "country", "drum and bass", "pop"];
-    return arrayToFilter.filter(artist => {
+    return arrayToFilter.filter((artist) => {
       for (const genre of artist.genres) {
         if (genre.toLowerCase() == filterValue) {
           return true;
@@ -119,20 +123,26 @@ function applyFilter(arrayToFilter, filterValue) {
 }
 
 function showArtists(listOfArtists) {
+  console.log("showing artists!");
   const grid = document.querySelector("#artists-grid");
   grid.innerHTML = "";
+  if (listOfArtists.length == 0) {
+    grid.insertAdjacentHTML("beforeend", "<h2>No matches!</h2>");
+  }
   for (const artist of listOfArtists) {
+    const seperatedGenres = seperateArray(artist.genres);
+    const seperatedLabels = seperateArray(artist.labels);
     grid.insertAdjacentHTML(
       `beforeend`,
       `
     <article class="artist">
-    <div>Artist name: <b>${artist.name}</b></div>
+    <div><b>${artist.name}</b></div>
     <div><img src="${artist.image}"></div>
     <div>Birthdate: <b>${artist.birthdate}</b> </div>
     <div>Active since: <b>${artist.activeSince}</b></div>
-    <div>Genres: <b>${artist.genres}</b></div>
-    <div>Labels: <b>${artist.labels}</b></div>
-    <div>Website:${artist.website}</div>
+    <div>Genres: <b>${seperatedGenres}</b></div>
+    <div>Labels: <b>${seperatedLabels}</b></div>
+    <div>Website: <a href="${artist.website}">${artist.website}</a></div>
     <div>About the artist: <b> ${artist.shortDescription}</b></div>
     <button class="update-btn">Update the artist</button>
     <button class="red delete-btn">DELETE THIS artist</button>
@@ -146,10 +156,14 @@ function showArtists(listOfArtists) {
       button.classList.add("favorite");
       document.querySelector("article:last-child").classList.add("favorite");
     }
+    document.querySelector("article:last-child .favorite-btn").addEventListener("click", () => changeFavoriteStatus(artist));
     document.querySelector("article:last-child .update-btn").addEventListener("click", () => updateArtistClicked(artist));
     document.querySelector("article:last-child .delete-btn").addEventListener("click", () => deleteArtistClicked(artist));
-    document.querySelector("article:last-child .favorite-btn").addEventListener("click", () => changeFavoriteStatus(artist));
   }
+}
+
+function seperateArray(array) {
+  return array.join(" & ");
 }
 
 function changeFavoriteStatus(artist) {
@@ -163,39 +177,11 @@ function changeFavoriteStatus(artist) {
       localStorage.setItem("favorites", artist.id);
     }
   } else {
-    const thingToSend = currentStash.split(",").filter(entry => entry != artist.id);
+    const thingToSend = currentStash.split(",").filter((entry) => entry != artist.id);
     localStorage.setItem("favorites", thingToSend);
   }
   console.log("changed stash:", localStorage.getItem("favorites"));
-  applySortAndFilter();
-}
-
-function createNewArtistClicked(event) {
-  prepareDialog();
-  console.log("create new artist clicked");
-  document.querySelector("#submit-form").addEventListener("submit", extractNewArtistFromForm);
-}
-
-async function extractNewArtistFromForm(event) {
-  console.log("CREATING");
-  const form = event.target;
-  const fixedGenres = splitAndProperCase(form.genres.value);
-  const fixedLabels = splitAndProperCase(form.labels.value);
-  const newArtist = {
-    name: form.name.value,
-    birthdate: form.birthdate.value,
-    activeSince: form.activeSince.value,
-    genres: fixedGenres,
-    labels: fixedLabels,
-    website: form.website.value,
-    image: form.image.value,
-    shortDescription: form.shortDescription.value,
-  };
-  const promise = await createNewArtist(newArtist);
-  console.log(promise);
-  if (promise.ok) {
-    applySortAndFilter();
-  }
+  applySortFilterAndShow();
 }
 
 function updateArtistClicked(artist) {
@@ -232,21 +218,55 @@ async function extractUpdatedArtistFromForm(artistID) {
 
   const promise = await updateArtist(updatedArtist, artistID);
   if (promise.ok) {
-    applySortAndFilter();
+    refetchAndShow();
   } else {
     console.error(promise);
   }
 }
 
 async function deleteArtistClicked(artist) {
-  console.log("we deleting? 11111");
   if (window.confirm("Do you REALLY wish to delete this artist?")) {
-    console.log("we deleting? 22222");
     const promise = await deleteArtist(artist);
+    console.log("promise:", promise);
+    console.log("promise u ok?:", promise.ok);
     if (promise.ok) {
-      applySortAndFilter();
+      refetchAndShow();
+    } else {
+      console.error(promise);
     }
-  } else {
-    console.log("we in here now");
   }
+}
+
+function createNewArtistClicked(event) {
+  prepareDialog();
+  console.log("create new artist clicked");
+  document.querySelector("#submit-form").addEventListener("submit", extractNewArtistFromForm);
+}
+
+async function extractNewArtistFromForm(event) {
+  console.log("CREATING");
+  const form = event.target;
+  const fixedGenres = splitAndProperCase(form.genres.value);
+  const fixedLabels = splitAndProperCase(form.labels.value);
+  const newArtist = {
+    name: form.name.value,
+    birthdate: form.birthdate.value,
+    activeSince: form.activeSince.value,
+    genres: fixedGenres,
+    labels: fixedLabels,
+    website: form.website.value,
+    image: form.image.value,
+    shortDescription: form.shortDescription.value,
+  };
+  const promise = await createNewArtist(newArtist);
+  if (promise.ok) {
+    refetchAndShow();
+  } else {
+    console.error(promise);
+  }
+}
+
+async function refetchAndShow() {
+  artists = await getArtists();
+  applySortFilterAndShow();
 }

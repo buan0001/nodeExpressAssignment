@@ -1,4 +1,4 @@
-import { writeArtistsFile, readArtistsFile } from "./fileHandlers.js";
+import { writeArtistsFile, readArtistsFile,  } from "./fileHandlers.js";
 import fs from "fs/promises";
 
 async function getAllArtists(req, res) {
@@ -68,8 +68,6 @@ function checkForUniqueArtist(updatedArtistList) {
   return stillUniqueUser
 }
 
-
-
 async function createNewArtist(req, res) {
   const artists = await readArtistsFile(res);
   if (artists instanceof Error) {
@@ -81,7 +79,8 @@ async function createNewArtist(req, res) {
   const uniqueCheck = checkForUniqueArtist(artistPackage)
   if (uniqueCheck) {
     artists.push(newArtist);
-    writeArtistsFile(artists,res);
+    writeArtistsFile(artists, res);
+    
   } else {
     console.log("DUPLICATE USER");
     res.status(400).json("Artist already exists!");
