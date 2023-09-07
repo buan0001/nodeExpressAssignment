@@ -1,10 +1,9 @@
 "use strict";
 const host = "http://localhost:3000";
 
-import { splitAndProperCase } from "./helpers.js";
-
 async function getArtists(params) {
   const rawArtists = await fetch(`${host}/artists`);
+  console.log("raw artists");
   return await rawArtists.json();
 }
 

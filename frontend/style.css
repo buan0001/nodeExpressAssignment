@@ -51,6 +51,9 @@ input[type="button"] {
   background-color: rgb(233, 207, 176);
   border-radius: 10px 20px;
 }
+#artists-grid > article.favorite{
+  background-color: rgb(133, 133, 228);
+}
 
 img {
   max-width: 300px;
@@ -98,6 +101,8 @@ button.favorite {
   background-color: rgb(128, 116, 116);
   color: #00030a;
 }
+
+
 
 dialog {
   background-color: #5c7fca;

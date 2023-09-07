@@ -99,10 +99,10 @@ function applyFilter(arrayToFilter, filterValue) {
   // If no filter value is set, ignore and return
   if (filterValue != "") {
     if (filterValue == "favorite") {
-      return arrayToFilter.filter((artist) => artist.favorite);
+      return arrayToFilter.filter(artist => artist.favorite);
     }
     const possibleGenres = ["rock", "punk", "country", "drum and bass", "pop"];
-    return arrayToFilter.filter((artist) => {
+    return arrayToFilter.filter(artist => {
       for (const genre of artist.genres) {
         if (genre.toLowerCase() == filterValue) {
           return true;
@@ -144,6 +144,7 @@ function showArtists(listOfArtists) {
       const button = document.querySelector("article:last-child .favorite-btn");
       button.innerHTML = "Remove from favorites";
       button.classList.add("favorite");
+      document.querySelector("article:last-child").classList.add("favorite");
     }
     document.querySelector("article:last-child .update-btn").addEventListener("click", () => updateArtistClicked(artist));
     document.querySelector("article:last-child .delete-btn").addEventListener("click", () => deleteArtistClicked(artist));
@@ -162,7 +163,7 @@ function changeFavoriteStatus(artist) {
       localStorage.setItem("favorites", artist.id);
     }
   } else {
-    const thingToSend = currentStash.split(",").filter((entry) => entry != artist.id);
+    const thingToSend = currentStash.split(",").filter(entry => entry != artist.id);
     localStorage.setItem("favorites", thingToSend);
   }
   console.log("changed stash:", localStorage.getItem("favorites"));
